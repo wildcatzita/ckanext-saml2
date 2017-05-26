@@ -239,9 +239,14 @@ def saml2_user_update(context, data_dict):
                 model.Session.query(SAML2User).filter_by(name_id=name_id).\
                     update({'allow_update': c.allow_update_checkbox})
             model.Session.commit()
-            return ckan_user_update(context, data_dict)
+            if c.is_allow_update:
+                return ckan_user_update(context, data_dict)
+            else:
+                raise logic.ValidationError({'error': [
+                        'Only allow update user from saml_info']})
         else:
-            raise logic.ValidationError({'error': ['Deny user changes in config file']})
+            raise logic.ValidationError({'error': [
+                        'Deny user changes in config file']})
     else:
         return ckan_user_update(context, data_dict)
 
