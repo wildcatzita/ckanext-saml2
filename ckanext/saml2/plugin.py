@@ -237,13 +237,20 @@ def saml2_user_update(context, data_dict):
                 model.Session.query(SAML2User).filter_by(name_id=name_id).\
                     update({'allow_update': allow_update_param})
                 model.Session.commit()
+                if not allow_update_param:
+                    return {'name': data_dict['id']}
             else:
                 if allow_update_param is not None:
                     allow_update_param = p.toolkit.asbool(allow_update_param)
                     model.Session.query(SAML2User).filter_by(name_id=name_id).\
                         update({'allow_update': allow_update_param})
                     model.Session.commit()
-
+                    if not allow_update_param:
+                        return {'name': data_dict['id']}
+                else:
+                    if not c.is_allow_update and context.get('ignore_auth'):
+                        return ckan_user_update(context, data_dict)
+                    return {'name': data_dict['id']}
             return ckan_user_update(context, data_dict)
 
         else:
